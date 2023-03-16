@@ -1,0 +1,33 @@
+﻿<Window x:Class="capozzolo.omar._4i.wpfThreads.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:capozzolo.omar._4i.wpfThreads"
+        mc:Ignorable="d"
+        Title="capozzolo.omar.4i.wpfThreads - 2023"
+        WindowStartupLocation="CenterScreen"
+        Height="450" Width="800"
+        >
+    <Grid ShowGridLines="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button x:Name="btnGo" Width="100" Click="Button_Click"></Button>
+            <Button x:Name="btnClear" Width="100" Click="btnClear_Click"></Button>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1">
+            <TextBlock x:Name="lblCounter1" FontSize="50"></TextBlock>
+            <TextBlock x:Name="lblCounter2" FontSize="50"></TextBlock>
+            <TextBlock x:Name="lblCounter3" FontSize="50"></TextBlock>
+            <TextBlock x:Name="lblCounterTOT" FontSize="50"></TextBlock>
+            <ProgressBar x:Name="prbarCounter1" Height="50" Maximum="0"></ProgressBar>
+        </StackPanel>
+    </Grid>
+</Window>
+
+
