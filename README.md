@@ -4,19 +4,47 @@ In questa prova di laboratorio abbiamo creato un pulsante che quando viene spint
 ### Thread sleep
 Thread.sleep permette di addormentare i thread in un determinato periodo di tempo
 all’interno del thread della user interface non posso però impiccare il mio processo principale e non è mai buona pratica fare degli event end.
+```
+private void Button_Click(object sender, RoutedEventArgs e)
+{
+	for(int x=0; x<GIRI ; x++)
+	{
+		lblCounterl.Text = x.ToString();
+		Thread.Sleep(100);
+	}
 
-![thread sleep](https://user-images.githubusercontent.com/116788504/231788422-a001d22c-ae9f-4dcb-abcb-3679fdadea23.jpg)
-
+}
+```
 Bisogna lanciare un thread separato alla velocità che gli pare ma bisogna lasciare libero il thread della GUI.
 
 Bisogna prima di tutto bisogna fare un nuovo metodo che non torna nulla così la GUI continua a girare indipendentemente da tutto.
-
-![thread sleep 3](https://user-images.githubusercontent.com/116788504/231788811-b728ac2a-ef6b-46ce-a909-b409049ee297.jpg)
-
+```
+private void incrementa()
+{
+	for(int x = 0;x < GIRI; x++)
+	{
+		lblCounterl.Text = x.ToString();
+		Thread.Sleep(100);
+	}
+}
+```
 I due thread non possono utilizzare l’uno le risorse dell’altro senza pagare dazio perciò serve un lasciapassare perciò si utilizza l’oggetto dispatcher (zona critica) e dentro di esso si fanno cose che solitamente non potrebbero essere fatte.
+```
+private void incrementa()
+{
+	for(int x = 0;x < GIRI; x++)
+	{
+		Dispatcher.Invoke(
+			() =>
+			{
+				lblCounterl.Text = x.ToString();
+			}
+		);
 
-![thread sleep 4](https://user-images.githubusercontent.com/116788504/231789064-0e2dd572-d509-4cf3-bdd0-36c7d69ac2cd.jpg)
-
+		Thread.Sleep(100);
+	}
+}
+```
 Dopo aver invocato il dispatcher nella interfaccia grafica verrà visualizzato il conteggio in tempo reale mentre prima dava solo il risultato finale però il conteggio sfarfalla perchè due thread stanno lavorando sulla stessa variabile e posso far lavorare anche più di due thread alla volta.
 i thread possono avere più stati, eccoli elencati : 
 
@@ -27,9 +55,26 @@ Se invece metto due contatori essi non andranno mai d’accordo e si fermeranno 
 
 ![thread sleep 6](https://user-images.githubusercontent.com/116788504/231789474-86f37db9-ce83-41fd-8207-7f4604283a3f.jpg)
 
+```
+private void incrementa1()
+{
+	for(int x = 0;x < GIRI; x++)
+	{
+		lock(_locker)
+		{
+			_counter++;
+		}
+		Dispatcher.Invoke(
+			() =>
+			{
+				lblCounterl.Text = _counter.ToString();
+			}
+		);
 
-![thread sleep 7](https://user-images.githubusercontent.com/116788504/231789604-7fbf2962-08f0-480d-b804-0acddad41435.jpg)
-
+		Thread.Sleep(100);
+	}
+}
+```
 lock per funzionare ha bisogno di un oggetto:
 
 ![thread sleep 8](https://user-images.githubusercontent.com/116788504/231789708-9d353838-4997-4552-b72e-f8a45c010d0e.jpg)
