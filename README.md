@@ -27,6 +27,7 @@ Se invece metto due contatori essi non andranno mai d’accordo e si fermeranno 
 
 ![thread sleep 6](https://user-images.githubusercontent.com/116788504/231789474-86f37db9-ce83-41fd-8207-7f4604283a3f.jpg)
 
+
 ![thread sleep 7](https://user-images.githubusercontent.com/116788504/231789604-7fbf2962-08f0-480d-b804-0acddad41435.jpg)
 
 lock per funzionare ha bisogno di un oggetto:
@@ -38,6 +39,7 @@ ora funziona tutto quasi alla perfezione:
 ![thread sleep 9](https://user-images.githubusercontent.com/116788504/231789825-a62722db-ea2e-46e5-b50f-6a6babd6c026.jpg)
 
 Il problema è che nessuno aggiorna la label di incrementa1 per questo un contatore conta male e uno bene.
+
 ![wpf string1](https://user-images.githubusercontent.com/116788504/231790075-4ce4062a-4663-4e16-970b-af5ffeda9bfb.jpg)
 
 Per questo problema serve un lock che serve per far si che il processo non sia bloccato e quindi funge da semaforo.
@@ -45,6 +47,7 @@ Il semaforo è un intero che non può essere negativo.
 Con la signal prendo il contatore e lo decrementa di uno ogni volta fino ad arrivare a 0.
 Wait invece è una procedura bloccante che si sblocca quando i processi sono finiti.
 Il semaforo si chiama countdwonevent
+
 ![wpf string2](https://user-images.githubusercontent.com/116788504/231790220-5181e071-e983-4625-81ec-e470602f38b8.jpg)
 
 e lo inizializziamo a 2. 
@@ -52,9 +55,11 @@ e lo inizializziamo a 2.
 ![wpf string3](https://user-images.githubusercontent.com/116788504/231790337-d137fdcd-f6a6-403b-8185-4eb2f4b84222.jpg)
 
 Il semaforo.wait lavora fin quando i signal sono finiti e lo segnalano al wait.
+
 ![wpf string4](https://user-images.githubusercontent.com/116788504/231790538-3062812a-bd2a-4333-8292-ed2d19958ac5.jpg)
 
 Per far si che capiamo che tutto è andato a buon fine facciamo stampare una stringa
+
 ![wpf string5](https://user-images.githubusercontent.com/116788504/231790670-fafc435f-e1d1-4742-8e87-f696bab3e749.jpg)
 
 Però c'è un errore, i semafori non possono essere messi dentro un event end.
@@ -70,14 +75,18 @@ Devo fare un altro dispatcher in questo metodo perché ha bisogno anche lui di b
 ![wpf string7](https://user-images.githubusercontent.com/116788504/231791018-f993ef4b-06c7-4a3a-be65-bae78b30d81a.jpg)
 
 Per far capire che tutto è finito facciamo un messaggio di avviso.
+
 ![wpf string8](https://user-images.githubusercontent.com/116788504/231791170-2669800b-4107-4876-8e06-c66d5a4245ed.jpg)
+
 ### Invoke
 
 Il dispatcher invoke ha un parametro di tipo lambda perchè tutto quello che sta all’interno delle parentesi graffe sono codice.
+
 ![wpf string9](https://user-images.githubusercontent.com/116788504/231791365-a015857a-9827-45f5-b774-a387f6dd1625.jpg)
 
 Per comodità e leggibilità facciamo tutto come nella foto precedente.
 Se clicco una seconda volta il button il semaforo si spacca perchè vengono a meno i reference del primo semaforo.
+
 ![wpf string10](https://user-images.githubusercontent.com/116788504/231791544-0b2acbcb-bb9c-4d93-ab0b-bf299e8e6406.jpg)
 
 Per questo diamo il nome al pulsante e lo disabilitiamo dopo averlo attivato per la prima volta.
@@ -85,5 +94,6 @@ Ora mettiamo il bottone a true e in questo modo lo possiamo attivare quando vogl
 ### Fine
 
 ![wpf string12](https://user-images.githubusercontent.com/116788504/231791788-75ae6367-6215-469c-b995-b7b46a8d7068.jpg)
+
 
 
