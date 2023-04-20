@@ -71,14 +71,14 @@ private void incrementa1()
 			}
 		);
 
-		Thread.Sleep(100);
+		Thread.Sleep(1);
 	}
 }
 ```
 lock per funzionare ha bisogno di un oggetto:
-
-![thread sleep 8](https://user-images.githubusercontent.com/116788504/231789708-9d353838-4997-4552-b72e-f8a45c010d0e.jpg)
-
+```
+static readonly object _locker = new object();
+```
 ora funziona tutto quasi alla perfezione:
 
 ![thread sleep 9](https://user-images.githubusercontent.com/116788504/231789825-a62722db-ea2e-46e5-b50f-6a6babd6c026.jpg)
@@ -92,53 +92,199 @@ Il semaforo è un intero che non può essere negativo.
 Con la signal prendo il contatore e lo decrementa di uno ogni volta fino ad arrivare a 0.
 Wait invece è una procedura bloccante che si sblocca quando i processi sono finiti.
 Il semaforo si chiama countdwonevent
-
-![wpf string2](https://user-images.githubusercontent.com/116788504/231790220-5181e071-e983-4625-81ec-e470602f38b8.jpg)
-
+```
+CowntdownEvent semaforo = new CountdownEvent(2);
+```
 e lo inizializziamo a 2. 
+```
+private void Button_Click(object sender, RoutedEventArgs e)
+{
+	Thread thread1 = new Thread(incrementa1);
+	thread1.Start();
 
-![wpf string3](https://user-images.githubusercontent.com/116788504/231790337-d137fdcd-f6a6-403b-8185-4eb2f4b84222.jpg)
+	Thread thread2 = new Thread(incrementa2);
+	thread2.Start();
 
+	semaforo = new CountdownEvent(2);
+}
+```
 Il semaforo.wait lavora fin quando i signal sono finiti e lo segnalano al wait.
 
 ![wpf string4](https://user-images.githubusercontent.com/116788504/231790538-3062812a-bd2a-4333-8292-ed2d19958ac5.jpg)
 
 Per far si che capiamo che tutto è andato a buon fine facciamo stampare una stringa
+```
+private void Button_Click(object sender, RoutedEventArgs e)
+{
+	Thread thread1 = new Thread(incrementa1);
+	thread1.Start();
 
-![wpf string5](https://user-images.githubusercontent.com/116788504/231790670-fafc435f-e1d1-4742-8e87-f696bab3e749.jpg)
+	Thread thread2 = new Thread(incrementa2);
+	thread2.Start();
 
+	semaforo = new CountdownEvent(2);
+	semaforo.Wait();
+
+	MessageBox.Show("Fine!!");
+}
+```
 Però c'è un errore, i semafori non possono essere messi dentro un event end.
 perciò dobbiamo lanciare il terzo thread e abbiamo bisogno di un metodo.
 Siccome il metodo uno e due non tornano niente la strada migliore è creare un altro metodo dove infilarci il wait .
 ### Wait
+```
+private void Button_Click(object sender, RoutedEventArgs e)
+{
+	Thread thread1 = new Thread(incrementa1);
+	thread1.Start();
 
-![wpf string 6](https://user-images.githubusercontent.com/116788504/231790907-f5859209-02d2-4b2f-b602-52f391ac56e4.jpg)
+	Thread thread2 = new Thread(incrementa2);
+	thread2.Start();
 
+	semaforo = new CountdownEvent(2);
+	
+	Thread thread3 = new Thread(incrementa3);
+	thread3.Start();
+
+}
+
+private void attendi()
+{
+	semaforo.Wait();
+}
+```
 Devo fare un altro dispatcher in questo metodo perché ha bisogno anche lui di bucare il bucabile.
 ### Dispatcher
+```
+private void attendi()
+{
+	semaforo.Wait();
+	Dispatcher.Invoke(
+		() =>
+		
+		{
+			lblCounterl.Text = _counter.ToString();
+			lblCounter2.Text = _counter.ToString();
+		}
+        );
 
-![wpf string7](https://user-images.githubusercontent.com/116788504/231791018-f993ef4b-06c7-4a3a-be65-bae78b30d81a.jpg)
-
+}
+```
 Per far capire che tutto è finito facciamo un messaggio di avviso.
+```
+private void attendi()
+{
+	semaforo.Wait();
+	Dispatcher.Invoke(
+		() =>
 
-![wpf string8](https://user-images.githubusercontent.com/116788504/231791170-2669800b-4107-4876-8e06-c66d5a4245ed.jpg)
+		{
+			MessageBox.Show("Finito!!");
+			lblCounterl.Text = _counter.ToString();
+			lblCounter2.Text = _counter.ToString();
+		}
+      );
 
+}
+```
 ### Invoke
 
 Il dispatcher invoke ha un parametro di tipo lambda perchè tutto quello che sta all’interno delle parentesi graffe sono codice.
+```
+private void Button_Click(object sender, RoutedEventArgs e)
+{
+	Thread thread1 = new Thread(incrementa1);
+	thread1.Start();
 
-![wpf string9](https://user-images.githubusercontent.com/116788504/231791365-a015857a-9827-45f5-b774-a387f6dd1625.jpg)
+	Thread thread2 = new Thread(incrementa2);
+	thread2.Start();
 
+	semaforo = new CountdownEvent(2);
+	
+	Thread thread3 = new Thread(
+
+	    () =>
+
+	    {
+		 semaforo.Wait();
+		 Dispatcher.Invoke(
+
+		     () =>
+
+		     {
+				MessageBox.Show("Finito!!");
+			      lblCounterl.Text = _counter.ToString();
+			      lblCounter2.Text = _counter.ToString();
+		     }
+	    }
+      );
+      Thread3.Start();
+}
+
+```
 Per comodità e leggibilità facciamo tutto come nella foto precedente.
 Se clicco una seconda volta il button il semaforo si spacca perchè vengono a meno i reference del primo semaforo.
+```
+private void incrementa2()
+        {
+            for (int x = 0; x < GIRI2; x++)
+            {
+                lock (_locker)
+                {
+                    _counter2++;
+                }
 
-![wpf string10](https://user-images.githubusercontent.com/116788504/231791544-0b2acbcb-bb9c-4d93-ab0b-bf299e8e6406.jpg)
+                Dispatcher.Invoke(
 
+                    () =>
+
+                    {
+                        lblCounter2.Text = _counter2.ToString();
+                       
+                    }
+
+                );
+
+                Thread.Sleep(2);
+            }
+            semaforo.Signal();
+        }
+```
 Per questo diamo il nome al pulsante e lo disabilitiamo dopo averlo attivato per la prima volta.
 Ora mettiamo il bottone a true e in questo modo lo possiamo attivare quando vogliamo e sarà sempre coordinato.
 ### Fine
+```
+private void Button_Click(object sender, RoutedEventArgs e)
+{
+	btnGo.IsEnabled = false;
+	Thread thread1 = new Thread(incrementa1);
+	thread1.Start();
 
-![wpf string12](https://user-images.githubusercontent.com/116788504/231791788-75ae6367-6215-469c-b995-b7b46a8d7068.jpg)
+	Thread thread2 = new Thread(incrementa2);
+	thread2.Start();
 
+	semaforo = new CountdownEvent(2);
+	
+	Thread thread3 = new Thread(
+
+	    () =>
+
+	    {
+		 semaforo.Wait();
+		 Dispatcher.Invoke(
+
+		     () =>
+
+		     {
+				MessageBox.Show("Finito!!");
+			        lblCounterl.Text = _counter.ToString();
+			        lblCounter2.Text = _counter.ToString();
+				btnGo.IsEnabled = true;
+		     }
+	    }
+      );
+      Thread3.Start();
+}
+```
 
 
